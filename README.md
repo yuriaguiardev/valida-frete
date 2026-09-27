@@ -2,7 +2,9 @@
 
 Trabalho do 1º Bimestre de **Linguagens Formais e Autômatos** — turma **CC6NA**.
 
-**Equipe:** Pedro Paulo · Yuri Aguiar · João Rath
+**Equipe:** Yuri Aguiar · Pedro Paulo · João Rath
+
+**Repositório:** https://github.com/yuriaguiardev/valida-frete
 
 ---
 
@@ -44,8 +46,8 @@ AFNε, testes e limitações) está em **[docs/EXPRESSOES.md](docs/EXPRESSOES.md
 Requisitos: **Python 3.10 ou superior**.
 
 ```bash
-git clone <URL-DO-REPOSITÓRIO>
-cd <pasta-do-repositório>
+git clone https://github.com/yuriaguiardev/valida-frete.git
+cd valida-frete
 
 python3 -m venv .venv
 source .venv/bin/activate          # Windows: .venv\Scripts\activate

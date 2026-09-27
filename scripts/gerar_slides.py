@@ -226,7 +226,7 @@ def slide_capa(prs):
     texto(s, 0.8, 1.9, 7.2, 1.2, "ValidaFrete", tamanho=60, negrito=True, fonte=TITULO, cor_=BRANCO)
     texto(s, 0.8, 3.1, 6.8, 1.0, "Validador de cadastros de fretes com Expressões Regulares e AFNε",
           tamanho=22, cor_="CADCFC")
-    texto(s, 0.8, 5.0, 6.5, 1.2, ["Pedro Paulo  ·  Yuri Aguiar  ·  João Rath",
+    texto(s, 0.8, 5.0, 6.5, 1.2, ["Yuri Aguiar  ·  Pedro Paulo  ·  João Rath",
                                   "Turma CC6NA  ·  30/09/2026"], tamanho=16, cor_=BRANCO, espaco_depois=6)
     exemplos = [("12.ABC.345/01DE-35", True), ("BRA2E19", True), ("ABC-1D23", False),
                 ("(23) 91234-5678", False), ("31/04/2026", False), ("R$ 1.250,00", True)]
@@ -516,7 +516,7 @@ def slide_demo(prs):
     imagem(s, IMAGENS / "tela_validar.png", 5.0, 1.45, 7.7, 2.75)  # recortada em docs/imagens
     imagem(s, IMAGENS / "tela_simulacao.png", 5.0, 4.3, 7.7, 2.6)
     rodape(s, "Executar: python -m validafrete  →  http://127.0.0.1:5050")
-    notas(s, "PEDRO: Demonstração ao vivo. (1) Validar BRA2E19 em 'Identificar automaticamente'. "
+    notas(s, "YURI: Demonstração ao vivo. (1) Validar BRA2E19 em 'Identificar automaticamente'. "
              "(2) Validar (23) 91234-5678 e ler a mensagem. (3) Processar planilha > Usar arquivo de exemplo; "
              "baixar o relatório. (4) Expressões e AFNε > ER-02 > simular BRA-2E19 e mostrar o conjunto vazio no "
              "passo 6. Se o professor pedir outra entrada, digitar na página inicial.")
@@ -575,9 +575,12 @@ def slide_equipe(prs):
     fundo(s, BRANCO)
     titulo(s, "Contribuições da equipe")
     membros = [
-        ("Pedro Paulo", "Interface web, processamento de CSV, dados de exemplo", "ER-01 · ER-02 · demonstração"),
-        ("Yuri Aguiar", "Construção e simulação do AFNε, diagramas, repositório", "ER-03 · Thompson"),
-        ("João Rath", "Casos de teste, testes automatizados, análise, relatório", "ER-04 · ER-05 · testes"),
+        ("Yuri Aguiar", "Arquitetura, as 5 ERs, AFNε (Thompson), validador, CSV, interface web, testes "
+                        "automatizados, documentação", "Thompson · ER-03 · demonstração"),
+        ("Pedro Paulo", "Dados de exemplo, casos de teste das ER-01 e ER-02, revisão da interface",
+         "ER-01 · ER-02"),
+        ("João Rath", "Casos de teste das ER-04 e ER-05, revisão da notação formal e do relatório",
+         "ER-04 · ER-05 · testes"),
     ]
     for i, (nome, fez, apresenta) in enumerate(membros):
         x = 0.6 + i * 4.1
@@ -588,16 +591,16 @@ def slide_equipe(prs):
               alinhamento=PP_ALIGN.CENTER, ancora=MSO_ANCHOR.MIDDLE)
         texto(s, x + 1.25, 1.85, 2.5, 0.8, nome, tamanho=20, negrito=True, fonte=TITULO, cor_=MARINHO,
               ancora=MSO_ANCHOR.MIDDLE)
-        texto(s, x + 0.3, 2.9, 3.3, 1.2, fez, tamanho=15)
+        texto(s, x + 0.3, 2.85, 3.3, 1.3, fez, tamanho=14)
         texto(s, x + 0.3, 4.2, 3.3, 0.5, apresenta, tamanho=13, negrito=True, cor_=CINZA)
     caixa(s, 0.6, 5.25, 12.1, 1.25, "FFF6E0")
     texto(s, 0.85, 5.37, 11.6, 1.05, [
-        [("Em conjunto: ", {"negrito": True}), ("definição do problema, escolha das ERs, notação formal e revisão dos AFNε.", {})],
+        [("Em conjunto: ", {"negrito": True}), ("definição do problema, escolha das ERs e revisão dos AFNε.", {})],
         [("Uso de IA: ", {"negrito": True}),
          ("Claude Code (Anthropic) apoiou a estrutura do projeto, o módulo do AFNε, os scripts de documentação e "
           "a redação inicial de README, relatório e slides. Todo o conteúdo foi revisado e é explicado pela equipe.", {})],
     ], tamanho=13, espaco_depois=6)
-    notas(s, "JOÃO: Apresentar a contribuição de cada integrante (ajustar se a divisão real for diferente) e a "
+    notas(s, "YURI: Apresentar a contribuição de cada integrante e a "
              "declaração de uso de IA exigida pelo professor.")
 
 
@@ -606,8 +609,8 @@ def slide_final(prs):
     fundo(s, MARINHO)
     texto(s, 0.8, 2.3, 11.7, 1.2, "Obrigado!", tamanho=60, negrito=True, fonte=TITULO, cor_=BRANCO)
     texto(s, 0.8, 3.5, 11.7, 0.7, "Perguntas?", tamanho=28, cor_=AMBAR)
-    texto(s, 0.8, 5.2, 11.7, 1.0, ["Repositório: github.com/<usuario>/validafrete",
-                                   "Pedro Paulo · Yuri Aguiar · João Rath — CC6NA"], tamanho=16, cor_="CADCFC",
+    texto(s, 0.8, 5.2, 11.7, 1.0, ["Repositório: github.com/yuriaguiardev/valida-frete",
+                                   "Yuri Aguiar · Pedro Paulo · João Rath — CC6NA"], tamanho=16, cor_="CADCFC",
           espaco_depois=6)
     notas(s, "TODOS: Abrir para perguntas. Deixar a aplicação aberta para o professor sugerir novas entradas.")
 
