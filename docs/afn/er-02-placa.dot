@@ -1,0 +1,26 @@
+digraph "ER-02 Placa do veículo (padrão antigo ou Mercosul)" {
+  rankdir=LR;
+  graph [fontname="Helvetica", nodesep=0.25, ranksep=0.35];
+  node [shape=circle, fontname="Helvetica", fontsize=11, width=0.45, fixedsize=true];
+  edge [fontname="Helvetica", fontsize=11, arrowsize=0.7];
+  inicio [shape=none, label="início", fixedsize=false, fontsize=10];
+  inicio -> q0;
+  q15 [shape=doublecircle];
+  q0 -> q1 [label="[A-Z]", color="#0f4c81", fontcolor="#0f4c81"];
+  q1 -> q2 [label="[A-Z]", color="#0f4c81", fontcolor="#0f4c81"];
+  q2 -> q3 [label="[A-Z]", color="#0f4c81", fontcolor="#0f4c81"];
+  q3 -> q4 [label="ε", style=dashed, color="#6b7280", fontcolor="#6b7280"];
+  q3 -> q5 [label="ε", style=dashed, color="#6b7280", fontcolor="#6b7280"];
+  q4 -> q6 [label="'-'", color="#0f4c81", fontcolor="#0f4c81"];
+  q4 -> q6 [label="ε", style=dashed, color="#6b7280", fontcolor="#6b7280"];
+  q5 -> q7 [label="[0-9]", color="#0f4c81", fontcolor="#0f4c81"];
+  q6 -> q8 [label="[0-9]", color="#0f4c81", fontcolor="#0f4c81"];
+  q7 -> q9 [label="[A-Z]", color="#0f4c81", fontcolor="#0f4c81"];
+  q8 -> q10 [label="[0-9]", color="#0f4c81", fontcolor="#0f4c81"];
+  q9 -> q11 [label="[0-9]", color="#0f4c81", fontcolor="#0f4c81"];
+  q10 -> q12 [label="[0-9]", color="#0f4c81", fontcolor="#0f4c81"];
+  q11 -> q13 [label="[0-9]", color="#0f4c81", fontcolor="#0f4c81"];
+  q12 -> q14 [label="[0-9]", color="#0f4c81", fontcolor="#0f4c81"];
+  q13 -> q15 [label="ε", style=dashed, color="#6b7280", fontcolor="#6b7280"];
+  q14 -> q15 [label="ε", style=dashed, color="#6b7280", fontcolor="#6b7280"];
+}

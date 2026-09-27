@@ -1,0 +1,89 @@
+{% extends "base.html" %}
+{% block titulo %}{{ er.codigo }}{% endblock %}
+{% block conteudo %}
+<h1>{{ er.codigo }} · {{ er.nome }}</h1>
+<p class="sub">{{ er.finalidade }}</p>
+
+<div class="cartao">
+  <dl class="ficha">
+    <dt>Identificação</dt><dd>{{ er.codigo }} · campo <code>{{ er.chave }}</code></dd>
+    <dt>Alfabeto (Σ)</dt>
+    <dd><ul class="compacta">{% for linha in er.alfabeto %}<li>{{ linha }}</li>{% endfor %}</ul></dd>
+    <dt>Linguagem L</dt><dd>{{ er.linguagem }}</dd>
+    <dt>ER formal</dt><dd><div class="formal">{{ er.formal }}</div></dd>
+    <dt>Sintaxe implementada</dt>
+    <dd><div class="padrao">re.fullmatch(r"{{ er.padrao }}", cadeia)</div></dd>
+    <dt>Equivalência</dt>
+    <dd>
+      <table>
+        <thead><tr><th>Na sintaxe do código</th><th>Operador formal</th></tr></thead>
+        <tbody>{% for trecho, significado in er.equivalencias %}
+          <tr><td class="mono">{{ trecho }}</td><td>{{ significado }}</td></tr>{% endfor %}
+        </tbody>
+      </table>
+    </dd>
+    <dt>Limitações</dt>
+    <dd><ul class="compacta">{% for l in er.limitacoes %}<li>{{ l }}</li>{% endfor %}</ul></dd>
+  </dl>
+</div>
+
+<h2>AFNε correspondente</h2>
+<p class="sub">Gerado a partir do próprio padrão do código pela construção de Thompson:
+{{ afn.num_estados }} estados, {{ afn.transicoes | length }} transições ({{ afn.total_vazias }} movimentos ε).
+Estado inicial: <strong>q{{ afn.inicial }}</strong> · estado final: <strong>q{{ afn.final }}</strong> (círculo duplo) ·
+arestas tracejadas são movimentos ε.</p>
+<div class="diagrama">
+  {% if svg %}{{ svg | safe }}{% else %}<p>Diagrama não gerado. Rode <code>python scripts/gerar_afn.py</code>.</p>{% endif %}
+</div>
+{% if svg %}<p><a href="{{ url_for('static', filename='afn/' ~ er.codigo.lower() ~ '-' ~ er.chave ~ '.svg') }}" target="_blank">Abrir diagrama em tela cheia</a></p>{% endif %}
+
+<h2 id="simulacao">Simular cadeia no AFNε</h2>
+<div class="cartao">
+  <form method="get" action="#simulacao" class="linha">
+    <div class="campo">
+      <label for="cadeia">Cadeia</label>
+      <input type="text" id="cadeia" name="cadeia" value="{{ cadeia or '' }}" maxlength="100" placeholder="{{ er.exemplo }}">
+    </div>
+    <button type="submit">Simular</button>
+  </form>
+  {% if erro %}<div class="alerta erro" style="margin-top:14px">{{ erro }}</div>{% endif %}
+  {% if passos %}
+    <p style="margin-top:16px">
+      Cadeia <code>{{ visivel(cadeia) }}</code>:
+      AFNε {% if aceita_afn %}<span class="selo ok">ACEITA</span>{% else %}<span class="selo erro">REJEITA</span>{% endif %}
+      · re.fullmatch {% if aceita_re %}<span class="selo ok">ACEITA</span>{% else %}<span class="selo erro">REJEITA</span>{% endif %}
+    </p>
+    <div class="tabela-wrap">
+      <table>
+        <thead><tr><th>Passo</th><th>Símbolo lido</th><th>Estados ativos (após ε-fecho)</th></tr></thead>
+        <tbody>
+        {% for p in passos %}
+          <tr>
+            <td>{{ p.passo }}</td>
+            <td class="mono">{{ p.simbolo if p.passo == 0 else visivel(p.simbolo) }}</td>
+            <td class="mono">{% if p.estados %}{ {% for q in p.estados | sort %}q{{ q }}{{ ', ' if not loop.last }}{% endfor %} }{% if afn.final in p.estados %} <span class="selo ok">contém final</span>{% endif %}{% else %}∅ (nenhum estado: rejeição){% endif %}</td>
+          </tr>
+        {% endfor %}
+        </tbody>
+      </table>
+    </div>
+  {% endif %}
+</div>
+
+<h2>Casos de teste</h2>
+<div class="cartao tabela-wrap">
+  <table>
+    <thead><tr><th>Cadeia</th><th>Esperado</th><th>Descrição</th></tr></thead>
+    <tbody>
+    {% for caso in casos %}
+      <tr>
+        <td class="mono"><a href="{{ url_for('ficha', chave=er.chave, cadeia=caso.cadeia) }}#simulacao">{{ visivel(caso.cadeia) }}</a></td>
+        <td>{% if caso.aceita %}<span class="selo ok">aceita</span>{% else %}<span class="selo erro">rejeita</span>{% endif %}
+            {% if caso.limite %}<span class="selo neutro">caso-limite</span>{% endif %}</td>
+        <td>{{ caso.descricao }}</td>
+      </tr>
+    {% endfor %}
+    </tbody>
+  </table>
+</div>
+{% endblock %}

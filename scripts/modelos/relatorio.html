@@ -1,0 +1,386 @@
+<!doctype html>
+<html lang="pt-BR">
+<head>
+<meta charset="utf-8">
+<title>Relatório Técnico — ValidaFrete</title>
+<style>
+  @page { size: A4; margin: 2.2cm 2cm 2.2cm 2.5cm;
+    @bottom-right { content: counter(page); font: 9pt Helvetica, Arial, sans-serif; color: #666; } }
+  @page capa { margin: 0; @bottom-right { content: none; } }
+  @page paisagem { size: A4 landscape; margin: 1.5cm; }
+  body { font-family: "Helvetica Neue", Helvetica, Arial, sans-serif; font-size: 10.5pt; line-height: 1.5; color: #1a1a1a; }
+  h1 { font-size: 17pt; color: #0f3a63; border-bottom: 2px solid #0f3a63; padding-bottom: 4px; margin: 0 0 12px; break-after: avoid; }
+  h2 { font-size: 13pt; color: #0f3a63; margin: 20px 0 8px; break-after: avoid; }
+  h3 { font-size: 11pt; margin: 14px 0 6px; break-after: avoid; }
+  p { margin: 0 0 8px; text-align: justify; }
+  .capitulo { break-before: page; }
+  code, .mono { font-family: Menlo, "Courier New", monospace; font-size: 9pt; }
+  .padrao { font-family: Menlo, "Courier New", monospace; font-size: 8.6pt; background: #f1f4f8; border: 1px solid #d5dde6; padding: 6px 8px; border-radius: 4px; word-break: break-all; }
+  .formal { font-family: "Cambria Math", "STIX Two Math", "Times New Roman", serif; font-size: 11pt; background: #eaf1f8; padding: 6px 8px; border-radius: 4px; }
+  table { border-collapse: collapse; width: 100%; margin: 6px 0 12px; font-size: 9.2pt; }
+  th, td { border: 1px solid #c9d2dc; padding: 4px 6px; text-align: left; vertical-align: top; }
+  th { background: #e6edf4; }
+  tr { break-inside: avoid; }
+  table.ficha th { width: 23%; }
+  .ok { color: #17803d; font-weight: 600; }
+  .limite { font-size: 8pt; background: #e6edf4; padding: 0 4px; border-radius: 3px; white-space: nowrap; }
+  ul, ol { margin: 0 0 8px; padding-left: 20px; }
+  li { margin-bottom: 3px; }
+  .figura { text-align: center; margin: 6px 0; }
+  .figura svg { max-width: 100%; height: auto; max-height: 15.5cm; }
+  .legenda { font-size: 9pt; color: #555; text-align: center; margin-top: 4px; }
+  .paisagem { page: paisagem; break-before: page; }
+  .colunas { columns: 4; column-gap: 12px; font-size: 7.8pt; }
+  .colunas table { font-size: 7.8pt; margin: 0; }
+  .colunas td, .colunas th { padding: 1px 4px; }
+  .nota { font-size: 9pt; color: #444; background: #fff8e6; border-left: 3px solid #e0a800; padding: 6px 10px; margin: 8px 0; }
+
+  .capa { page: capa; height: 297mm; display: flex; flex-direction: column; justify-content: space-between; padding: 3cm 2.5cm; box-sizing: border-box; text-align: center; }
+  .capa .inst { font-size: 12pt; letter-spacing: .5px; color: #333; }
+  .capa .titulo { font-size: 26pt; font-weight: 700; color: #0f3a63; margin-top: 4cm; }
+  .capa .subtitulo { font-size: 14pt; color: #444; margin-top: 10px; }
+  .capa .equipe { font-size: 12pt; line-height: 1.8; }
+  .capa .rodape { font-size: 11pt; color: #333; }
+  .sumario li { margin-bottom: 4px; }
+</style>
+</head>
+<body>
+
+<section class="capa">
+  <div class="inst">Ciência da Computação · Turma CC6NA<br>Linguagens Formais e Autômatos</div>
+  <div>
+    <div class="titulo">ValidaFrete</div>
+    <div class="subtitulo">Validador de Cadastros de Fretes com Expressões Regulares</div>
+    <div class="subtitulo" style="font-size:12pt;margin-top:24px">Relatório Técnico — Trabalho do 1º Bimestre</div>
+  </div>
+  <div class="equipe">Pedro Paulo<br>Yuri Aguiar<br>João Rath</div>
+  <div class="rodape">30 de setembro de 2026</div>
+</section>
+
+<section class="capitulo">
+  <h1>Sumário</h1>
+  <ol class="sumario">
+    <li>Introdução</li>
+    <li>Problema e objetivos</li>
+    <li>Fundamentação teórica</li>
+    <li>Desenvolvimento da aplicação</li>
+    <li>Expressões Regulares implementadas (ER-01 a ER-05)</li>
+    <li>Testes e análise dos resultados</li>
+    <li>Limitações e melhorias futuras</li>
+    <li>Contribuições dos integrantes</li>
+    <li>Uso de Inteligência Artificial</li>
+    <li>Conclusão</li>
+    <li>Referências</li>
+  </ol>
+  <p>Apêndice A — Tabelas de transição dos AFNε</p>
+
+  <h1 style="margin-top:28px">1. Introdução</h1>
+  <p>Expressões Regulares (ERs) são uma notação algébrica para descrever linguagens regulares e
+  estão presentes em praticamente todas as linguagens de programação como ferramenta de validação,
+  busca e extração de texto. Este trabalho relaciona a teoria estudada em Linguagens Formais e
+  Autômatos — ERs, linguagens regulares e autômatos finitos não determinísticos com movimentos vazios
+  (AFNε) — com a construção de uma aplicação funcional.</p>
+  <p>O <strong>ValidaFrete</strong> é uma aplicação web escrita em Python que valida os campos de cadastros
+  de fretes usando cinco Expressões Regulares. Um diferencial do projeto é que o AFNε de cada expressão
+  não foi desenhado à mão: ele é <strong>gerado automaticamente a partir do padrão escrito no código</strong>,
+  pela construção de Thompson, e os testes automatizados comprovam que o autômato e o motor
+  <code>re</code> do Python aceitam e rejeitam exatamente as mesmas cadeias. Assim, a ER formal, a sintaxe
+  do código, os testes e o AFNε representam a mesma linguagem, como exige a regra central do trabalho.</p>
+</section>
+
+<section>
+  <h1 style="margin-top:24px">2. Problema e objetivos</h1>
+  <p>Transportadoras de pequeno e médio porte recebem cadastros de fretes preenchidos manualmente por
+  filiais, parceiros e clientes, em planilhas. É comum que esses dados cheguem com erros de formatação:
+  CNPJ com máscara incompleta, placas em letras minúsculas ou com hífen no padrão Mercosul, telefones com
+  DDD inexistente, datas impossíveis (como 31/04) e valores monetários escritos de formas diferentes.
+  Esses erros só são percebidos quando a emissão do documento fiscal é recusada ou quando o motorista
+  não é localizado, gerando retrabalho e atrasos.</p>
+  <p>Em 2026 o problema se agravou com a entrada em vigor do <strong>CNPJ alfanumérico</strong>
+  (Instrução Normativa RFB nº 2.229/2024): sistemas que aceitavam apenas dígitos passaram a rejeitar
+  cadastros válidos, enquanto validações improvisadas aceitam valores inválidos.</p>
+  <h2>Objetivo geral</h2>
+  <p>Desenvolver uma aplicação que valide automaticamente os campos de cadastros de fretes por meio de
+  Expressões Regulares, indicando de forma clara quais valores estão incorretos e por quê.</p>
+  <h2>Objetivos específicos</h2>
+  <ul>
+    <li>Definir cinco linguagens regulares relevantes ao domínio e descrevê-las por ERs na notação formal.</li>
+    <li>Implementar as ERs em Python com correspondência completa (<code>re.fullmatch</code>).</li>
+    <li>Construir o AFNε correspondente a cada ER e usá-lo para diagnosticar a posição da falha.</li>
+    <li>Processar planilhas CSV inteiras, produzindo resumo e relatório de inconsistências.</li>
+    <li>Tratar entradas vazias ou inválidas com mensagens claras ao usuário.</li>
+    <li>Testar cada ER com no mínimo seis cadeias aceitas, seis rejeitadas e casos-limite.</li>
+  </ul>
+</section>
+
+<section class="capitulo">
+  <h1>3. Fundamentação teórica</h1>
+  <h2>3.1 Alfabetos, cadeias e linguagens</h2>
+  <p>Um <strong>alfabeto</strong> Σ é um conjunto finito e não vazio de símbolos. Uma <strong>cadeia</strong>
+  sobre Σ é uma sequência finita de símbolos de Σ; a cadeia de comprimento zero é a palavra vazia
+  <strong>ε</strong>. Uma <strong>linguagem</strong> é qualquer conjunto de cadeias sobre Σ. Neste trabalho,
+  cada ER possui um alfabeto próprio, definido explicitamente na sua ficha; qualquer símbolo fora de Σ
+  (letras minúsculas, espaços indevidos etc.) leva à rejeição.</p>
+  <h2>3.2 Expressões Regulares</h2>
+  <p>As ERs são definidas indutivamente: ∅, ε e cada símbolo a ∈ Σ são ERs; se r e s são ERs, então
+  <em>r | s</em> (união), <em>rs</em> (concatenação) e <em>r*</em> (fecho de Kleene) também são. Os
+  operadores derivados usados nas implementações são abreviações desses três:</p>
+  <table>
+    <tr><th>Operador</th><th>Definição por operadores básicos</th></tr>
+    <tr><td><code>r+</code></td><td>r r* (uma ou mais repetições)</td></tr>
+    <tr><td><code>r?</code></td><td>(r | ε) (zero ou uma ocorrência)</td></tr>
+    <tr><td><code>r{m}</code></td><td>r r … r (m cópias concatenadas)</td></tr>
+    <tr><td><code>r{m,n}</code></td><td>rᵐ | rᵐ⁺¹ | … | rⁿ</td></tr>
+    <tr><td><code>[abc]</code>, <code>[a-c]</code></td><td>(a | b | c) — classe ou intervalo finito</td></tr>
+  </table>
+  <p>A precedência adotada é: repetição (<code>* + ? {}</code>) antes da concatenação, e concatenação antes
+  da união; parênteses alteram essa ordem.</p>
+  <h2>3.3 AFNε e o Teorema de Kleene</h2>
+  <p>Um AFNε é uma 5-upla <em>M = (Q, Σ, δ, q₀, F)</em>, em que Q é o conjunto finito de estados,
+  δ : Q × (Σ ∪ {ε}) → 𝒫(Q) é a função de transição, q₀ é o estado inicial e F ⊆ Q o conjunto de estados
+  finais. O <strong>ε-fecho</strong> de um estado é o conjunto de estados alcançáveis apenas por movimentos
+  vazios. Uma cadeia w é aceita quando, partindo do ε-fecho de q₀ e processando os símbolos de w (sempre
+  aplicando o ε-fecho após cada símbolo), o conjunto final de estados contém algum estado de F.</p>
+  <p>O <strong>Teorema de Kleene</strong> garante que as linguagens descritas por ERs são exatamente as
+  aceitas por autômatos finitos. Por isso, restringimos as ERs aos operadores regulares: retroreferências
+  (<code>\1</code>), lookaround e recursão foram proibidos, pois podem descrever linguagens não regulares
+  e impedem a correspondência direta com um AFNε.</p>
+  <h2>3.4 Construção de Thompson</h2>
+  <p>A construção de Thompson transforma uma ER em um AFNε de forma recursiva, montando um fragmento para
+  cada subexpressão, com um único estado inicial (sem arestas de entrada) e um único estado final
+  (sem arestas de saída):</p>
+  <ul>
+    <li><strong>Símbolo a:</strong> dois estados ligados por uma transição a.</li>
+    <li><strong>União r | s:</strong> novo estado inicial com movimentos ε para os fragmentos de r e s, e
+      movimentos ε dos finais deles para um novo estado final.</li>
+    <li><strong>Concatenação rs:</strong> o final de r é ligado ao inicial de s.</li>
+    <li><strong>Fecho r*:</strong> movimentos ε permitem pular r, repeti-lo (do final de volta ao início) ou sair.</li>
+  </ul>
+  <p>Na implementação, a concatenação funde o final de r com o inicial de s (em vez de usar um movimento
+  ε), e <code>r?</code> é representado por um único movimento ε que "pula" o fragmento de r. Ambas as
+  simplificações preservam a linguagem, porque o estado inicial de um fragmento de Thompson não recebe
+  arestas e o final não emite arestas, e reduzem o tamanho dos diagramas.</p>
+</section>
+
+<section class="capitulo">
+  <h1>4. Desenvolvimento da aplicação</h1>
+  <h2>4.1 Tecnologias</h2>
+  <table>
+    <tr><th>Tecnologia</th><th>Uso</th></tr>
+    <tr><td>Python 3.10+</td><td>Linguagem de programação</td></tr>
+    <tr><td>Módulo <code>re</code> (biblioteca padrão)</td><td>Motor de ERs; todas as validações usam <code>re.fullmatch</code></td></tr>
+    <tr><td>Flask 3</td><td>Interface web local</td></tr>
+    <tr><td>pytest</td><td>Testes automatizados</td></tr>
+    <tr><td>Graphviz</td><td>Desenho dos AFNε a partir dos arquivos DOT gerados</td></tr>
+    <tr><td>Git / GitHub, VS Code</td><td>Versionamento e ambiente de desenvolvimento</td></tr>
+  </table>
+  <h2>4.2 Organização do código</h2>
+  <table>
+    <tr><th>Módulo</th><th>Responsabilidade</th></tr>
+    <tr><td><code>expressoes.py</code></td><td>Fonte única das cinco ERs: nome, alfabeto, linguagem, notação formal, padrão do código, equivalências e limitações.</td></tr>
+    <tr><td><code>casos_teste.py</code></td><td>16 casos de teste por ER (8 aceitas, 8 rejeitadas, com casos-limite marcados).</td></tr>
+    <tr><td><code>afn.py</code></td><td>Analisador do padrão (subconjunto regular), construção de Thompson, ε-fecho, simulação passo a passo e exportação para DOT.</td></tr>
+    <tr><td><code>validador.py</code></td><td>Valida um valor com <code>re.fullmatch</code> e, se rejeitado, usa o AFNε para explicar em que posição a cadeia falhou.</td></tr>
+    <tr><td><code>processador.py</code></td><td>Lê planilhas CSV (UTF-8 ou Windows-1252, separador <code>;</code> ou <code>,</code>), valida todos os campos e gera o relatório.</td></tr>
+    <tr><td><code>app.py</code></td><td>Rotas web: validar valor, processar planilha, fichas das ERs com simulação, testes ao vivo.</td></tr>
+  </table>
+  <p>Como todas as partes do sistema — validação, página web, testes, diagramas e esta documentação — leem
+  as ERs do mesmo módulo, não há cópias que possam divergir.</p>
+  <h2>4.3 Entradas, processamento e saídas</h2>
+  <table>
+    <tr><th>Entrada</th><th>Processamento</th><th>Saída</th></tr>
+    <tr><td>Valor digitado e tipo do campo (ou "identificar automaticamente")</td><td><code>re.fullmatch</code> com a ER do campo (ou com as cinco); diagnóstico pelo AFNε</td><td>Aceita/rejeitada e mensagem com a posição e o símbolo que causaram a rejeição</td></tr>
+    <tr><td>Planilha CSV com as colunas <code>id;cnpj;placa;telefone;data;valor</code></td><td>Validação de cada campo de cada registro</td><td>Totais, aceitas/rejeitadas por ER, tabela com erros destacados e relatório CSV para download</td></tr>
+    <tr><td>Cadeia na ficha de uma ER</td><td>Simulação do AFNε</td><td>Conjunto de estados ativos após cada símbolo e resultado do AFNε e do <code>re</code></td></tr>
+  </table>
+  <h2>4.4 Tratamento de entradas vazias ou inválidas</h2>
+  <ul>
+    <li><strong>Valor vazio:</strong> mensagem "Entrada vazia" — ε não pertence a nenhuma das linguagens.</li>
+    <li><strong>Valor longo demais</strong> (mais de 100 caracteres) ou tipo de campo inexistente: mensagem de erro, sem processamento.</li>
+    <li><strong>Símbolo fora de Σ:</strong> a mensagem indica o símbolo e a posição, com dica específica para espaços sobrando.</li>
+    <li><strong>Cadeia incompleta:</strong> quando toda a entrada é lida sem atingir o estado final, o programa informa que faltam símbolos.</li>
+    <li><strong>Arquivo:</strong> nenhum arquivo selecionado, extensão diferente de .csv, arquivo vazio, maior que 1 MB, binário, com codificação ilegível, sem registros, com cabeçalho sem as colunas exigidas ou com colunas repetidas — cada caso tem uma mensagem própria.</li>
+    <li><strong>Linha com número de colunas diferente do cabeçalho:</strong> o registro é marcado como erro estrutural, e o restante do arquivo continua sendo processado.</li>
+    <li><strong>Espaços extras não são removidos</strong> automaticamente: " 11222333000181" é rejeitado, exatamente como nos testes, para que o programa reconheça a mesma linguagem da ER.</li>
+  </ul>
+</section>
+
+<section class="capitulo">
+  <h1>5. Expressões Regulares implementadas</h1>
+  <p>As convenções da notação formal usadas nas fichas são: justaposição representa concatenação;
+  <em>|</em> representa união; <em>r{m}</em> e <em>r{m,n}</em> são repetições; símbolos de pontuação
+  aparecem entre aspas simples ('.', '/', '-', '(') para não se confundirem com operadores; ␣ representa
+  o espaço; as letras D, P, M, A, F e K são conjuntos ou abreviações definidos no alfabeto de cada ficha.
+  Em todas as ERs a correspondência é completa (<code>re.fullmatch</code>), equivalente a ancorar o padrão
+  com <code>^</code> e <code>$</code>.</p>
+  <table>
+    <tr><th>ER</th><th>Campo</th><th>Estados</th><th>Transições</th><th>Mov. ε</th></tr>
+    {% for f in fichas %}
+    <tr><td>{{ f.er.codigo }}</td><td>{{ f.er.nome }}</td><td>{{ f.afn.num_estados }}</td><td>{{ f.afn.transicoes|length }}</td><td>{{ f.afn.total_vazias }}</td></tr>
+    {% endfor %}
+  </table>
+</section>
+
+{% for f in fichas %}
+<section class="capitulo">
+  <h2 style="font-size:15pt;margin-top:0">5.{{ loop.index }} {{ f.er.codigo }} — {{ f.er.nome }}</h2>
+  <table class="ficha">
+    <tr><th>Identificação</th><td>{{ f.er.codigo }} · campo <code>{{ f.er.chave }}</code></td></tr>
+    <tr><th>Finalidade</th><td>{{ f.er.finalidade }}</td></tr>
+    <tr><th>Alfabeto (Σ)</th><td>{% for a in f.er.alfabeto %}{{ a }}{% if not loop.last %}<br>{% endif %}{% endfor %}</td></tr>
+    <tr><th>Linguagem L</th><td>{{ f.er.linguagem }}</td></tr>
+    <tr><th>ER formal</th><td><div class="formal">{{ f.er.formal }}</div></td></tr>
+    <tr><th>Sintaxe implementada</th><td><div class="padrao">re.fullmatch(r"{{ f.er.padrao }}", cadeia)</div></td></tr>
+  </table>
+  <h3>Equivalência entre a sintaxe e os operadores formais</h3>
+  <table>
+    <tr><th style="width:32%">Na sintaxe do código</th><th>Operador formal</th></tr>
+    {% for trecho, significado in f.er.equivalencias %}
+    <tr><td class="mono">{{ trecho }}</td><td>{{ significado }}</td></tr>
+    {% endfor %}
+  </table>
+  <h3>Testes</h3>
+  <table>
+    <tr><th style="width:4%">#</th><th style="width:30%">Cadeia</th><th style="width:11%">Esperado</th><th style="width:15%">Obtido (re / AFNε)</th><th>Descrição</th></tr>
+    {% for c in f.casos %}
+    <tr><td>{{ loop.index }}</td><td class="mono">{{ c.exibida }}</td><td>{{ 'aceita' if c.caso.aceita else 'rejeita' }}</td>
+      <td class="ok">{{ 'aceita' if c.re else 'rejeita' }} / {{ 'aceita' if c.afn else 'rejeita' }}</td>
+      <td>{{ c.caso.descricao }}{% if c.caso.limite %} <span class="limite">caso-limite</span>{% endif %}</td></tr>
+    {% endfor %}
+  </table>
+  <h3>Resultado e limites</h3>
+  <p>Os {{ f.casos|length }} casos produziram o resultado esperado em <code>re.fullmatch</code> e na simulação do AFNε.</p>
+  <ul>{% for l in f.er.limitacoes %}<li>{{ l }}</li>{% endfor %}</ul>
+</section>
+<section class="paisagem">
+  <h2 style="margin-top:0">5.{{ loop.index }} {{ f.er.codigo }} — AFNε correspondente</h2>
+  <p style="font-size:9pt">Q = {q0, …, q{{ f.afn.num_estados - 1 }}} ({{ f.afn.num_estados }} estados) ·
+    Σ = { {{ f.sigma }} } · estado inicial q{{ f.afn.inicial }} (seta "início") · F = {q{{ f.afn.final }}} (círculo duplo) ·
+    {{ f.afn.transicoes|length }} transições, {{ f.afn.total_vazias }} movimentos ε (tracejados). A tabela δ completa está no Apêndice A.</p>
+  <div class="figura">{{ f.svg | safe }}</div>
+  <div class="legenda">Figura {{ loop.index }} — AFNε de {{ f.er.codigo }}, gerado pela construção de Thompson a partir de <code>{{ f.er.padrao|truncate(90) }}</code>. Versão ampliada: <code>docs/afn/{{ f.arquivo }}.svg</code>.</div>
+</section>
+{% endfor %}
+
+<section class="capitulo">
+  <h1>6. Testes e análise dos resultados</h1>
+  <p>Os testes foram automatizados com pytest e estão em <code>tests/</code>. A execução mais recente
+  resultou em: <strong>{{ resumo_pytest }}</strong>.</p>
+  <table>
+    <tr><th>Grupo</th><th>O que verifica</th></tr>
+    <tr><td>Casos das ERs</td><td>Os {{ total_casos }} casos das cinco ERs executados com <code>re.fullmatch</code> e, separadamente, simulando o AFNε.</td></tr>
+    <tr><td>Requisitos mínimos</td><td>Cada ER tem ao menos 6 aceitas, 6 rejeitadas e 1 caso-limite.</td></tr>
+    <tr><td>Alfabeto</td><td>O Σ documentado em cada ficha é exatamente o conjunto de símbolos que aparece nas transições do AFNε.</td></tr>
+    <tr><td>Equivalência AFNε × regex</td><td>3.000 cadeias por ER (15.000 no total), geradas por mutações dos casos de teste (troca, inserção e remoção de símbolos, inclusive fora de Σ), para explorar a fronteira da linguagem. Em todas, AFNε e <code>re.fullmatch</code> concordaram.</td></tr>
+    <tr><td>Construção de Thompson</td><td>Cada operador isolado e combinado; recursos não regulares (<code>\1</code>, lookaround, <code>\d</code>, ponto, âncoras, classe negada) são recusados pelo analisador.</td></tr>
+    <tr><td>Aplicação</td><td>Mensagens de diagnóstico, entradas inválidas, sete arquivos CSV de exemplo (válidos e inválidos) e todas as rotas web.</td></tr>
+  </table>
+  <h2>Resultados por ER</h2>
+  <table>
+    <tr><th>ER</th><th>Aceitas</th><th>Rejeitadas</th><th>Casos-limite</th><th>Acertos re</th><th>Acertos AFNε</th></tr>
+    {% for f in fichas %}
+    <tr><td>{{ f.er.codigo }}</td><td>{{ f.aceitas }}</td><td>{{ f.rejeitadas }}</td><td>{{ f.limites }}</td>
+      <td class="ok">{{ f.casos|length }}/{{ f.casos|length }}</td><td class="ok">{{ f.casos|length }}/{{ f.casos|length }}</td></tr>
+    {% endfor %}
+  </table>
+  <h2>Execução com a planilha de exemplo</h2>
+  <p>O arquivo <code>dados/fretes_exemplo.csv</code> contém 15 registros. O programa identificou
+  <strong>{{ exemplo.validos }} registros totalmente válidos</strong> e {{ exemplo.total - exemplo.validos }} com ao menos um
+  campo rejeitado:</p>
+  <table>
+    <tr><th>ER</th><th>Aceitas</th><th>Rejeitadas</th></tr>
+    {% for l in exemplo.resumo() %}<tr><td>{{ l.expressao.codigo }} · {{ l.expressao.nome }}</td><td>{{ l.aceitas }}</td><td>{{ l.rejeitadas }}</td></tr>{% endfor %}
+  </table>
+  <p>Exemplos de mensagens produzidas:</p>
+  <table>
+    <tr><th style="width:26%">Valor</th><th>Mensagem</th></tr>
+    {% for v, m in exemplos_mensagens %}<tr><td class="mono">{{ v }}</td><td>{{ m }}</td></tr>{% endfor %}
+  </table>
+  <h2>Análise</h2>
+  <p>Todos os casos produziram o resultado esperado, e o AFNε concordou com o motor <code>re</code> em
+  todas as cadeias testadas. Isso confirma, empiricamente, que o padrão do código e o autômato
+  representam a mesma linguagem; a correspondência com a ER formal é garantida pela tabela de
+  equivalência de cada ficha, já que cada atalho da sintaxe (classes, <code>?</code>, <code>{m}</code>,
+  <code>{m,n}</code>) foi reescrito com os operadores básicos.</p>
+  <p>Os falsos resultados observados são conhecidos e decorrem de decisões de projeto, e não de erros:
+  a ER descreve o <em>formato</em> dos dados. O registro F007 (data 29/02/2027) é aceito pela ER-04,
+  e o CNPJ 00.000.000/0000-00 é aceito pela ER-01 — ambos seriam barrados por uma verificação
+  aritmética (ano bissexto, dígito verificador), que está fora do escopo das expressões.</p>
+</section>
+
+<section class="capitulo">
+  <h1>7. Limitações e melhorias futuras</h1>
+  <h2>Limitações</h2>
+  <ul>
+    <li>As ERs validam o formato, não a existência dos dados: dígitos verificadores do CNPJ, placa registrada no Detran e número de telefone ativo não são consultados.</li>
+    <li>A ER-04 aceita 29/02 em anos não bissextos. Como o intervalo 1900–2099 é finito, os bissextos poderiam ser descritos por uma ER, mas ela ficaria muito grande.</li>
+    <li>A entrada é sensível a maiúsculas/minúsculas e a espaços, de propósito, para que o programa reconheça exatamente a linguagem documentada.</li>
+    <li>Os AFNε de Thompson têm muitos estados (84 na ER-03); para leitura humana, um AFD minimizado seria menor.</li>
+  </ul>
+  <h2>Melhorias futuras</h2>
+  <ul>
+    <li>Etapa de validação semântica após a ER: dígitos verificadores do CNPJ (módulo 11) e anos bissextos.</li>
+    <li>Normalização opcional (maiúsculas, remoção de espaços) com aviso ao usuário, mantendo a ER inalterada.</li>
+    <li>Conversão do AFNε em AFD (construção de subconjuntos) e minimização, com visualização lado a lado.</li>
+    <li>Leitura direta de planilhas .xlsx e exportação do relatório em .xlsx.</li>
+    <li>Novas ERs para outros campos do frete: CEP, chave de acesso da NF-e (44 dígitos) e RNTRC.</li>
+  </ul>
+
+  <h1 style="margin-top:28px">8. Contribuições dos integrantes</h1>
+  <table>
+    <tr><th>Integrante</th><th>Contribuições</th></tr>
+    <tr><td>Pedro Paulo</td><td>Interface web, processamento de planilhas CSV, dados de exemplo; apresentação das ER-01 e ER-02 e da demonstração.</td></tr>
+    <tr><td>Yuri Aguiar</td><td>Construção e simulação do AFNε, geração dos diagramas, organização do repositório; apresentação da ER-03 e da construção de Thompson.</td></tr>
+    <tr><td>João Rath</td><td>Casos de teste e testes automatizados, análise dos resultados, relatório; apresentação das ER-04 e ER-05.</td></tr>
+  </table>
+  <p>A definição do problema, a escolha das ERs, a escrita da notação formal e a revisão dos AFNε foram
+  feitas em conjunto. O registro detalhado está em <code>CONTRIBUICOES.md</code> e no histórico de commits.</p>
+
+  <h1 style="margin-top:28px">9. Uso de Inteligência Artificial</h1>
+  <p>Conforme as orientações do trabalho, declaramos o uso do assistente <strong>Claude Code
+  (Anthropic)</strong> como ferramenta de apoio na sugestão da estrutura do projeto e das páginas web, na
+  implementação do módulo de construção e simulação do AFNε, na criação dos scripts de geração de
+  diagramas e documentação, na revisão dos casos de teste e na redação inicial do README, deste relatório
+  e dos slides. Todo o conteúdo foi revisado pela equipe, que compreende, explica e é capaz de modificar
+  as expressões, os autômatos e o código apresentados.</p>
+
+  <h1 style="margin-top:28px">10. Conclusão</h1>
+  <p>O ValidaFrete resolve um problema concreto — a validação de cadastros de fretes — usando cinco
+  Expressões Regulares não triviais: a ER-01 acompanha o novo CNPJ alfanumérico; a ER-02 une dois
+  padrões de placa; a ER-03 restringe o DDD aos 67 códigos em uso e só aceita parênteses balanceados,
+  o que exige duplicar a subexpressão do DDD, pois uma ER não tem memória; a ER-04 codifica a
+  quantidade de dias de cada mês; e a ER-05 exige separadores de milhar consistentes.</p>
+  <p>Ao gerar o AFNε diretamente do padrão do código e comparar autômato e motor de ERs em milhares de
+  cadeias, o trabalho mostra na prática o Teorema de Kleene: a mesma linguagem descrita de forma
+  algébrica (ER), computacional (sintaxe do Python) e operacional (AFNε).</p>
+
+  <h1 style="margin-top:28px">11. Referências</h1>
+  <ul>
+    <li>HOPCROFT, J. E.; MOTWANI, R.; ULLMAN, J. D. <em>Introdução à teoria de autômatos, linguagens e computação</em>. Rio de Janeiro: Elsevier, 2002.</li>
+    <li>MENEZES, P. B. <em>Linguagens formais e autômatos</em>. 6. ed. Porto Alegre: Bookman, 2011.</li>
+    <li>THOMPSON, K. Regular expression search algorithm. <em>Communications of the ACM</em>, v. 11, n. 6, p. 419–422, 1968.</li>
+    <li>PYTHON SOFTWARE FOUNDATION. <em>re — Regular expression operations</em>. Disponível em: https://docs.python.org/3/library/re.html.</li>
+    <li>RECEITA FEDERAL DO BRASIL. Instrução Normativa RFB nº 2.229, de 15 de outubro de 2024 (CNPJ alfanumérico).</li>
+    <li>ANATEL. Plano Geral de Códigos Nacionais — tabela de DDDs.</li>
+    <li>CONTRAN. Resolução nº 729, de 6 de março de 2018 (placas de identificação veicular padrão Mercosul).</li>
+    <li>Guia de Sintaxe para Apresentação das Expressões Regulares — material de apoio da disciplina.</li>
+  </ul>
+</section>
+
+<section class="capitulo">
+  <h1>Apêndice A — Tabelas de transição dos AFNε</h1>
+  <p>Cada linha representa δ(origem, símbolo) ∋ destino. "ε" indica movimento vazio. Classes como
+  <code>[0-9]</code> representam uma transição para cada símbolo da classe.</p>
+  {% for f in fichas %}
+  <h2>{{ f.er.codigo }} — {{ f.er.nome }} (inicial q{{ f.afn.inicial }}, final q{{ f.afn.final }})</h2>
+  <div class="colunas">
+    <table>
+      <tr><th>Origem</th><th>Símbolo</th><th>Destino</th></tr>
+      {% for t in f.afn.transicoes %}<tr><td>q{{ t.origem }}</td><td class="mono">{{ 'ε' if t.vazia else t.rotulo }}</td><td>q{{ t.destino }}</td></tr>{% endfor %}
+    </table>
+  </div>
+  {% endfor %}
+</section>
+
+</body>
+</html>

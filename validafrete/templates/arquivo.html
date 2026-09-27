@@ -1,0 +1,76 @@
+{% extends "base.html" %}
+{% block titulo %}Processar planilha{% endblock %}
+{% block conteudo %}
+<h1>Processar planilha de fretes</h1>
+<p class="sub">Envie um arquivo CSV (separador <code>;</code> ou <code>,</code>) com o cabeçalho
+<code>id;{{ colunas | join(';') }}</code>. Cada campo é validado pela ER correspondente.</p>
+
+<div class="cartao">
+  <form method="post" enctype="multipart/form-data" class="linha">
+    <div class="campo">
+      <label for="planilha">Arquivo CSV (até 1 MB)</label>
+      <input type="file" id="planilha" name="planilha" accept=".csv,.txt">
+    </div>
+    <button type="submit">Processar arquivo</button>
+    <button type="submit" name="exemplo" value="1" class="secundario">Usar arquivo de exemplo</button>
+  </form>
+</div>
+
+{% if erro %}
+<div class="alerta erro">{{ erro }}</div>
+{% endif %}
+
+{% if relatorio %}
+  {% for aviso in relatorio.avisos %}<div class="alerta aviso">{{ aviso }}</div>{% endfor %}
+
+  <h2>Resumo · {{ nome }}</h2>
+  <div class="grade">
+    <div class="cartao"><div class="numero">{{ relatorio.total }}</div>registros lidos</div>
+    <div class="cartao"><div class="numero" style="color:var(--ok)">{{ relatorio.validos }}</div>registros totalmente válidos</div>
+    <div class="cartao"><div class="numero" style="color:var(--erro)">{{ relatorio.total - relatorio.validos }}</div>registros com problemas</div>
+  </div>
+
+  <div class="cartao tabela-wrap" style="margin-top:14px">
+    <table>
+      <thead><tr><th>Expressão</th><th>Aceitas</th><th>Rejeitadas</th></tr></thead>
+      <tbody>
+      {% for linha in relatorio.resumo() %}
+        <tr><td>{{ linha.expressao.codigo }} · {{ linha.expressao.nome }}</td>
+            <td>{{ linha.aceitas }}</td><td>{{ linha.rejeitadas }}</td></tr>
+      {% endfor %}
+      </tbody>
+    </table>
+  </div>
+
+  <p><a class="botao" href="{{ download }}" download="relatorio_validafrete.csv">Baixar relatório CSV</a></p>
+
+  <h2>Registros</h2>
+  <div class="cartao tabela-wrap">
+    <table>
+      <thead>
+        <tr><th>Linha</th><th>ID</th><th>Situação</th>
+          {% for er in expressoes %}<th>{{ er.chave | upper }}</th>{% endfor %}</tr>
+      </thead>
+      <tbody>
+      {% for reg in relatorio.registros %}
+        <tr>
+          <td>{{ reg.linha }}</td>
+          <td>{{ reg.identificador }}</td>
+          <td>{% if reg.valido %}<span class="selo ok">VÁLIDO</span>{% else %}<span class="selo erro">INVÁLIDO</span>{% endif %}</td>
+          {% if reg.erro %}
+            <td colspan="{{ expressoes | length }}" class="invalido">{{ reg.erro }}</td>
+          {% else %}
+            {% for er in expressoes %}{% set r = reg.campos[er.chave] %}
+            <td class="{{ 'valido' if r.aceita else 'invalido' }}">
+              <span class="mono" style="white-space:pre">{{ r.cadeia if r.cadeia else "ε" }}</span>
+              {% if not r.aceita %}<span class="motivo">{{ r.mensagem }}</span>{% endif %}
+            </td>
+            {% endfor %}
+          {% endif %}
+        </tr>
+      {% endfor %}
+      </tbody>
+    </table>
+  </div>
+{% endif %}
+{% endblock %}

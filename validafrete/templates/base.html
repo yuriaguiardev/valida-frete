@@ -1,0 +1,29 @@
+<!doctype html>
+<html lang="pt-BR">
+<head>
+  <meta charset="utf-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1">
+  <title>{% block titulo %}ValidaFrete{% endblock %} · ValidaFrete</title>
+  <link rel="stylesheet" href="{{ url_for('static', filename='style.css') }}">
+</head>
+<body>
+  <header>
+    <div class="conteudo">
+      <a class="marca" href="{{ url_for('inicio') }}">ValidaFrete</a>
+      <nav>
+        {% set pagina = request.endpoint %}
+        <a href="{{ url_for('inicio') }}" class="{{ 'ativo' if pagina in ('inicio', 'validar_valor') }}">Validar valor</a>
+        <a href="{{ url_for('arquivo') }}" class="{{ 'ativo' if pagina == 'arquivo' }}">Processar planilha</a>
+        <a href="{{ url_for('lista_expressoes') }}" class="{{ 'ativo' if pagina in ('lista_expressoes', 'ficha') }}">Expressões e AFNε</a>
+        <a href="{{ url_for('testes') }}" class="{{ 'ativo' if pagina == 'testes' }}">Testes</a>
+      </nav>
+    </div>
+  </header>
+  <main class="conteudo">
+    {% block conteudo %}{% endblock %}
+  </main>
+  <footer>
+    ValidaFrete · Linguagens Formais e Autômatos · CC6NA · Pedro Paulo, Yuri Aguiar e João Rath
+  </footer>
+</body>
+</html>

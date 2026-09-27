@@ -1,0 +1,34 @@
+{% extends "base.html" %}
+{% block titulo %}Testes{% endblock %}
+{% block conteudo %}
+<h1>Execução dos casos de teste</h1>
+<p class="sub">Cada cadeia é testada duas vezes: com <code>re.fullmatch</code> (o que o programa usa) e simulando o AFNε.
+O teste só passa se os dois resultados forem iguais ao esperado.</p>
+
+{% if falhas == 0 %}
+<div class="alerta ok"><strong>{{ total }} de {{ total }} casos passaram.</strong> ER, código e AFNε concordam em todas as cadeias.</div>
+{% else %}
+<div class="alerta erro"><strong>{{ falhas }} de {{ total }} casos falharam.</strong></div>
+{% endif %}
+
+{% for t in tabelas %}
+<h2><a href="{{ url_for('ficha', chave=t.er.chave) }}">{{ t.er.codigo }} · {{ t.er.nome }}</a></h2>
+<div class="cartao tabela-wrap">
+  <table>
+    <thead><tr><th>Cadeia</th><th>Descrição</th><th>Esperado</th><th>re.fullmatch</th><th>AFNε</th><th>Situação</th></tr></thead>
+    <tbody>
+    {% for l in t.linhas %}
+      <tr>
+        <td class="mono">{{ visivel(l.caso.cadeia) }}</td>
+        <td>{{ l.caso.descricao }}{% if l.caso.limite %} <span class="selo neutro">caso-limite</span>{% endif %}</td>
+        <td>{{ 'aceita' if l.caso.aceita else 'rejeita' }}</td>
+        <td>{{ 'aceita' if l.re else 'rejeita' }}</td>
+        <td>{{ 'aceita' if l.afn else 'rejeita' }}</td>
+        <td>{% if l.ok %}<span class="selo ok">OK</span>{% else %}<span class="selo erro">FALHOU</span>{% endif %}</td>
+      </tr>
+    {% endfor %}
+    </tbody>
+  </table>
+</div>
+{% endfor %}
+{% endblock %}

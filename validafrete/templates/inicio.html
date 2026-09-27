@@ -1,0 +1,61 @@
+{% extends "base.html" %}
+{% block titulo %}Validar valor{% endblock %}
+{% block conteudo %}
+<h1>Validar um valor</h1>
+<p class="sub">Transportadoras recebem cadastros de fretes digitados à mão por várias filiais, cheios de erros de
+formatação. O ValidaFrete confere cada campo com uma Expressão Regular e explica, pelo AFNε, onde a cadeia falhou.</p>
+
+<div class="cartao">
+  <form method="post" class="linha">
+    <div class="campo">
+      <label for="cadeia">Valor a validar</label>
+      <input type="text" id="cadeia" name="cadeia" value="{{ cadeia or '' }}" maxlength="100"
+             placeholder="ex.: 12.ABC.345/01DE-35" autocomplete="off" autofocus>
+    </div>
+    <div>
+      <label for="tipo">Tipo de campo</label>
+      <select id="tipo" name="tipo">
+        <option value="auto" {{ 'selected' if tipo in (None, 'auto') }}>Identificar automaticamente</option>
+        {% for er in expressoes %}
+        <option value="{{ er.chave }}" {{ 'selected' if tipo == er.chave }}>{{ er.codigo }} · {{ er.nome }}</option>
+        {% endfor %}
+      </select>
+    </div>
+    <button type="submit">Validar</button>
+  </form>
+  <p class="sub" style="margin:12px 0 0">Exemplos:
+    {% for er in expressoes %}<code>{{ er.exemplo }}</code>{{ ' · ' if not loop.last }}{% endfor %}
+  </p>
+</div>
+
+{% if erro %}
+<div class="alerta erro">{{ erro }}</div>
+{% endif %}
+
+{% if resultados %}
+  {% set aceitas = resultados | selectattr('aceita') | list %}
+  {% if tipo == 'auto' %}
+    {% if aceitas %}
+    <div class="alerta ok">A cadeia <code>{{ visivel(cadeia) }}</code> foi reconhecida como:
+      <strong>{% for r in aceitas %}{{ r.expressao.codigo }} ({{ r.expressao.nome }}){{ ', ' if not loop.last }}{% endfor %}</strong>.</div>
+    {% else %}
+    <div class="alerta erro">A cadeia <code>{{ visivel(cadeia) }}</code> não pertence à linguagem de nenhuma das cinco expressões.</div>
+    {% endif %}
+  {% endif %}
+  <div class="cartao tabela-wrap">
+    <table>
+      <thead><tr><th>Expressão</th><th>Resultado</th><th>Explicação</th><th></th></tr></thead>
+      <tbody>
+      {% for r in resultados %}
+        <tr>
+          <td><strong>{{ r.expressao.codigo }}</strong> · {{ r.expressao.nome }}</td>
+          <td>{% if r.aceita %}<span class="selo ok">ACEITA</span>{% else %}<span class="selo erro">REJEITADA</span>{% endif %}</td>
+          <td>{{ r.mensagem }}</td>
+          <td><a href="{{ url_for('ficha', chave=r.expressao.chave, cadeia=r.cadeia) }}#simulacao">simular no AFNε</a></td>
+        </tr>
+      {% endfor %}
+      </tbody>
+    </table>
+  </div>
+{% endif %}
+{% endblock %}
