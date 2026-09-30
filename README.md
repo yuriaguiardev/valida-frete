@@ -97,7 +97,7 @@ python scripts/gerar_slides.py         # docs/entrega/apresentacao.pptx
 | Item | Arquivo |
 |---|---|
 | Relatório técnico (PDF) | [docs/entrega/relatorio_tecnico.pdf](docs/entrega/relatorio_tecnico.pdf) |
-| Apresentação (PPTX e PDF) | [docs/entrega/apresentacao.pptx](docs/entrega/apresentacao.pptx) · [PDF](docs/entrega/apresentacao.pdf) — roteiro de fala nas notas do orador |
+| Apresentação (PPTX e PDF) | [docs/entrega/apresentacao.pptx](docs/entrega/apresentacao.pptx) · [PDF](docs/entrega/apresentacao.pdf) |
 | Expressões Regulares documentadas | [docs/EXPRESSOES.md](docs/EXPRESSOES.md) |
 | Diagramas dos AFNε | [docs/afn/](docs/afn/) |
 | Testes e análise | [tests/](tests/) · [docs/RESULTADOS_TESTES.md](docs/RESULTADOS_TESTES.md) |

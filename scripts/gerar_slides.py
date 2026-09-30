@@ -1,5 +1,8 @@
 """Gera a apresentação (docs/entrega/apresentacao.pptx) a partir do código.
 
+Também gera roteiro/apresentacao_com_notas.pptx, com o roteiro de fala nas
+notas do orador. A pasta roteiro/ é de uso interno do grupo e não vai para o git.
+
 Uso (na raiz do projeto):
     pip install -r requirements-docs.txt
     python scripts/gerar_slides.py
@@ -8,6 +11,7 @@ Requer os diagramas já gerados (python scripts/gerar_afn.py) e o Graphviz
 para os mini-diagramas da construção de Thompson.
 """
 
+import json
 import subprocess
 import sys
 import tempfile
@@ -50,6 +54,8 @@ MONO = "Courier New"
 IMAGENS = RAIZ / "docs" / "imagens"
 AFN_PNG = RAIZ / "docs" / "afn"
 SAIDA = RAIZ / "docs" / "entrega" / "apresentacao.pptx"
+# Versão com o roteiro de fala nas notas do orador: só para o grupo (pasta fora do git).
+SAIDA_ROTEIRO = RAIZ / "roteiro" / "apresentacao_com_notas.pptx"
 TMP = Path(tempfile.mkdtemp(prefix="validafrete_slides_"))
 
 
@@ -165,8 +171,15 @@ def escala_comum(caminhos, w, h):
     return min(escalas)
 
 
-def notas(slide, conteudo):
-    slide.notes_slide.notes_text_frame.text = conteudo
+def aplicar_notas(prs):
+    """Copia as falas de roteiro/notas.json (arquivo local do grupo) para as notas do orador."""
+    arquivo = SAIDA_ROTEIRO.parent / "notas.json"
+    if not arquivo.exists():
+        return False
+    falas = json.loads(arquivo.read_text(encoding="utf-8"))
+    for slide, fala in zip(prs.slides, falas):
+        slide.notes_slide.notes_text_frame.text = fala
+    return True
 
 
 def rodape(slide, conteudo, claro=False):
@@ -232,8 +245,6 @@ def slide_capa(prs):
                 ("(23) 91234-5678", False), ("31/04/2026", False), ("R$ 1.250,00", True)]
     for i, (cadeia, ok) in enumerate(exemplos):
         chip(s, 8.6, 1.5 + i * 0.72, 3.9, cadeia, ok, tamanho=15, h=0.52, espaco_visivel=False)
-    notas(s, "YURI: Apresentar a equipe e o tema. O ValidaFrete valida cadastros de fretes usando "
-             "cinco Expressões Regulares e mostra, com o AFNε, onde cada valor falhou.")
 
 
 def slide_problema(prs):
@@ -260,8 +271,6 @@ def slide_problema(prs):
         texto(s, 5.8, y, 1.3, 0.84, campo, tamanho=15, negrito=True, cor_=MARINHO, ancora=MSO_ANCHOR.MIDDLE)
         chip(s, 7.1, y + 0.22, 2.9, valor, False, tamanho=12, h=0.4, espaco_visivel=False)
         texto(s, 10.2, y, 2.4, 0.84, motivo, tamanho=13, cor_=CINZA, ancora=MSO_ANCHOR.MIDDLE)
-    notas(s, "YURI: Contextualizar o problema. Cada linha da direita é um erro real que o programa "
-             "detecta; todos estão no arquivo dados/fretes_exemplo.csv.")
 
 
 def slide_solucao(prs):
@@ -296,8 +305,6 @@ def slide_solucao(prs):
         caixa(s, 0.6 + i * 2.5, 5.9, 2.2, 0.55, MARINHO, raio=0.3)
         texto(s, 0.6 + i * 2.5, 5.9, 2.2, 0.55, t, tamanho=14, negrito=True, cor_=BRANCO,
               alinhamento=PP_ALIGN.CENTER, ancora=MSO_ANCHOR.MIDDLE)
-    notas(s, "YURI: Explicar as três funções da aplicação: validar um valor, processar uma planilha e "
-             "simular o AFNε. Tecnologias: Python, Flask para a interface, re para as ERs, pytest e Graphviz.")
 
 
 def slide_fonte_unica(prs):
@@ -329,8 +336,6 @@ def slide_fonte_unica(prs):
     caixa(s, 0.6, 6.2, 12.1, 0.6, VERDE_CLARO)
     texto(s, 0.8, 6.2, 11.8, 0.6, "Testes comparam AFNε × re.fullmatch em 15.000 cadeias geradas: 0 divergências.",
           tamanho=15, negrito=True, cor_=VERDE, ancora=MSO_ANCHOR.MIDDLE)
-    notas(s, "YURI: Nada foi escrito duas vezes. O validador, os testes, os diagramas e a documentação leem "
-             "as ERs do mesmo módulo. O AFNε não é desenhado à mão: é gerado do padrão que o programa usa.")
 
 
 def slide_thompson(prs):
@@ -358,11 +363,9 @@ def slide_thompson(prs):
         [("Setas tracejadas = movimentos ε.  ", {"negrito": True}),
          ("Simplificações que preservam a linguagem: a concatenação funde o final de r com o início de s, "
           "e r? usa um único ε para pular r.", {})]], tamanho=14, cor_=CINZA)
-    notas(s, "YURI: Explicar as regras de Thompson. Cada operador vira um fragmento com um estado inicial e "
-             "um final. Estes mini-diagramas foram gerados pelo mesmo código que gera os AFNε das cinco ERs.")
 
 
-def slide_ficha(prs, er, orador):
+def slide_ficha(prs, er):
     s = prs.slides.add_slide(prs.slide_layouts[6])
     fundo(s, BRANCO)
     titulo(s, er.nome, sobre=er.codigo)
@@ -395,12 +398,9 @@ def slide_ficha(prs, er, orador):
         texto(s, 5.6, ly, 2.3, 0.4, trecho, tamanho=11, fonte=MONO, cor_=MARINHO, negrito=True,
               ancora=MSO_ANCHOR.MIDDLE)
         texto(s, 7.95, ly, 4.75, 0.4, significado, tamanho=11, ancora=MSO_ANCHOR.MIDDLE)
-    notas(s, f"{orador}: Ler a finalidade: {er.finalidade} Mostrar que cada atalho da sintaxe do código "
-             f"corresponde a um operador formal (tabela de equivalência). re.fullmatch exige que a cadeia "
-             f"inteira pertença à linguagem, como as âncoras ^ e $.")
 
 
-def slide_afn(prs, er, orador, partes=1, com_testes=True):
+def slide_afn(prs, er, partes=1, com_testes=True):
     s = prs.slides.add_slide(prs.slide_layouts[6])
     fundo(s, BRANCO)
     afn = construir_afn(er.padrao)
@@ -419,9 +419,6 @@ def slide_afn(prs, er, orador, partes=1, com_testes=True):
         _rotulos_telefone(s)
     if com_testes:
         _testes(s, er, 4.65)
-    notas(s, f"{orador}: Mostrar o estado inicial (seta 'início'), o final (círculo duplo) e os movimentos ε "
-             f"(tracejados). Percorrer uma cadeia aceita e uma rejeitada. Para ampliar o diagrama, abrir "
-             f"Expressões e AFNε > {er.codigo} > 'Abrir diagrama em tela cheia' na aplicação.")
     return s
 
 
@@ -454,7 +451,7 @@ def _testes(s, er, y, grande=False):
           tamanho=11, cor_=CINZA)
 
 
-def slide_testes_tel(prs, er, orador):
+def slide_testes_tel(prs, er):
     s = prs.slides.add_slide(prs.slide_layouts[6])
     fundo(s, BRANCO)
     titulo(s, "Testes e o porquê de o DDD aparecer duas vezes", sobre=f"{er.codigo} · {er.nome}")
@@ -466,8 +463,6 @@ def slide_testes_tel(prs, er, orador):
           "é repetida, e o AFNε tem dois blocos de DDD.", {})],
     ], tamanho=15, espaco_depois=6)
     _testes(s, er, 3.5, grande=True)
-    notas(s, f"{orador}: Explicar a duplicação do DDD: é o custo de exigir parênteses balanceados sem "
-             f"memória. Destacar os casos-limite: DDD 99 (maior existente) e número com um dígito a menos.")
 
 
 def slide_entradas(prs):
@@ -492,8 +487,6 @@ def slide_entradas(prs):
         texto(s, x + 0.25, y + 0.58, 5.5, 0.9, msg, tamanho=13, cor_=TEXTO)
     texto(s, 0.6, 6.85, 12.1, 0.4, "Espaços extras não são removidos: \" 11222333000181\" é rejeitado, exatamente como nos testes — "
               "o programa reconhece a mesma linguagem da ER.", tamanho=13, cor_=CINZA, italico=True)
-    notas(s, "JOÃO: O diagnóstico usa o AFNε: o programa lê a cadeia símbolo a símbolo e informa onde o "
-             "conjunto de estados ficou vazio. Não fazemos strip para não mudar a linguagem.")
 
 
 def slide_demo(prs):
@@ -516,10 +509,6 @@ def slide_demo(prs):
     imagem(s, IMAGENS / "tela_validar.png", 5.0, 1.45, 7.7, 2.75)  # recortada em docs/imagens
     imagem(s, IMAGENS / "tela_simulacao.png", 5.0, 4.3, 7.7, 2.6)
     rodape(s, "Executar: python -m validafrete  →  http://127.0.0.1:5050")
-    notas(s, "YURI: Demonstração ao vivo. (1) Validar BRA2E19 em 'Identificar automaticamente'. "
-             "(2) Validar (23) 91234-5678 e ler a mensagem. (3) Processar planilha > Usar arquivo de exemplo; "
-             "baixar o relatório. (4) Expressões e AFNε > ER-02 > simular BRA-2E19 e mostrar o conjunto vazio no "
-             "passo 6. Se o professor pedir outra entrada, digitar na página inicial.")
 
 
 def slide_numeros(prs):
@@ -539,9 +528,6 @@ def slide_numeros(prs):
         [("ER-04  ", {"negrito": True, "fonte": MONO}), ("29/02/2023 é aceito: a ER não distingue anos bissextos.", {})],
     ], tamanho=16, cor_=BRANCO, espaco_depois=8)
     rodape(s, "Detalhes: docs/RESULTADOS_TESTES.md · página Testes da aplicação · python -m pytest -v", claro=True)
-    notas(s, "JOÃO: Cada caso é testado duas vezes, com a regex e com o AFNε. A comparação em 15.000 cadeias "
-             "geradas por mutação mostra que autômato e código aceitam a mesma linguagem. Os falsos positivos "
-             "são limitações documentadas, não erros.")
 
 
 def slide_limitacoes(prs):
@@ -566,8 +552,6 @@ def slide_limitacoes(prs):
         caixa(s, x, 1.55, 5.95, 4.9, TINTA)
         texto(s, x + 0.3, 1.8, 5.4, 0.5, cab, tamanho=24, negrito=True, fonte=TITULO, cor_=tom)
         texto(s, x + 0.3, 2.6, 5.4, 3.7, itens, tamanho=18, marcadores=True, espaco_depois=14)
-    notas(s, "JOÃO: Limitações são decisões conscientes: a ER descreve formato. As melhorias mostram como "
-             "evoluir o trabalho, incluindo conteúdos da disciplina (AFD e minimização).")
 
 
 def slide_equipe(prs):
@@ -600,8 +584,6 @@ def slide_equipe(prs):
          ("Claude Code (Anthropic) apoiou a estrutura do projeto, o módulo do AFNε, os scripts de documentação e "
           "a redação inicial de README, relatório e slides. Todo o conteúdo foi revisado e é explicado pela equipe.", {})],
     ], tamanho=13, espaco_depois=6)
-    notas(s, "YURI: Apresentar a contribuição de cada integrante e a "
-             "declaração de uso de IA exigida pelo professor.")
 
 
 def slide_final(prs):
@@ -612,10 +594,9 @@ def slide_final(prs):
     texto(s, 0.8, 5.2, 11.7, 1.0, ["Repositório: github.com/yuriaguiardev/valida-frete",
                                    "Yuri Aguiar · Pedro Paulo · João Rath — CC6NA"], tamanho=16, cor_="CADCFC",
           espaco_depois=6)
-    notas(s, "TODOS: Abrir para perguntas. Deixar a aplicação aberta para o professor sugerir novas entradas.")
 
 
-def main():
+def montar():
     prs = Presentation()
     prs.slide_width = Inches(13.333)
     prs.slide_height = Inches(7.5)
@@ -626,14 +607,13 @@ def main():
     slide_fonte_unica(prs)
     slide_thompson(prs)
 
-    oradores = {"cnpj": "PEDRO", "placa": "PEDRO", "telefone": "YURI", "data": "JOÃO", "valor": "JOÃO"}
     for er in EXPRESSOES:
-        slide_ficha(prs, er, oradores[er.chave])
+        slide_ficha(prs, er)
         if er.chave == "telefone":
-            slide_afn(prs, er, oradores[er.chave], com_testes=False)
-            slide_testes_tel(prs, er, oradores[er.chave])
+            slide_afn(prs, er, com_testes=False)
+            slide_testes_tel(prs, er)
         else:
-            slide_afn(prs, er, oradores[er.chave], partes=2 if er.chave == "cnpj" else 1)
+            slide_afn(prs, er, partes=2 if er.chave == "cnpj" else 1)
 
     slide_entradas(prs)
     slide_demo(prs)
@@ -642,9 +622,18 @@ def main():
     slide_equipe(prs)
     slide_final(prs)
 
+    return prs
+
+
+def main():
+    prs = montar()
     SAIDA.parent.mkdir(parents=True, exist_ok=True)
     prs.save(SAIDA)
     print(f"{SAIDA.relative_to(RAIZ)}: {len(prs.slides)} slides")
+    prs = montar()
+    if aplicar_notas(prs):
+        prs.save(SAIDA_ROTEIRO)
+        print(f"{SAIDA_ROTEIRO.relative_to(RAIZ)}: com notas do orador (fora do git)")
 
 
 if __name__ == "__main__":
