@@ -560,25 +560,22 @@ def slide_equipe(prs):
     titulo(s, "Contribuições da equipe")
     membros = [
         ("Yuri Aguiar", "Arquitetura, as 5 ERs, AFNε (Thompson), validador, CSV, interface web, testes "
-                        "automatizados, documentação", "Thompson · ER-03 · demonstração"),
-        ("Pedro Paulo", "Dados de exemplo, casos de teste das ER-01 e ER-02, revisão da interface",
-         "ER-01 · ER-02"),
-        ("João Rath", "Casos de teste das ER-04 e ER-05, revisão da notação formal e do relatório",
-         "ER-04 · ER-05 · testes"),
+                        "automatizados, documentação"),
+        ("Pedro Paulo", "Dados de exemplo, casos de teste das ER-01 e ER-02, revisão da interface"),
+        ("João Rath", "Casos de teste das ER-04 e ER-05, revisão da notação formal e do relatório"),
     ]
-    for i, (nome, fez, apresenta) in enumerate(membros):
+    for i, (nome, fez) in enumerate(membros):
         x = 0.6 + i * 4.1
-        caixa(s, x, 1.6, 3.85, 3.3, TINTA)
+        caixa(s, x, 1.6, 3.85, 3.1, TINTA)
         caixa(s, x + 0.3, 1.85, 0.8, 0.8, MARINHO, raio=0.5)
         iniciais = "".join(p[0] for p in nome.split())
         texto(s, x + 0.3, 1.85, 0.8, 0.8, iniciais, tamanho=20, negrito=True, cor_=AMBAR,
               alinhamento=PP_ALIGN.CENTER, ancora=MSO_ANCHOR.MIDDLE)
         texto(s, x + 1.25, 1.85, 2.5, 0.8, nome, tamanho=20, negrito=True, fonte=TITULO, cor_=MARINHO,
               ancora=MSO_ANCHOR.MIDDLE)
-        texto(s, x + 0.3, 2.85, 3.3, 1.3, fez, tamanho=14)
-        texto(s, x + 0.3, 4.2, 3.3, 0.5, apresenta, tamanho=13, negrito=True, cor_=CINZA)
-    caixa(s, 0.6, 5.25, 12.1, 1.25, "FFF6E0")
-    texto(s, 0.85, 5.37, 11.6, 1.05, [
+        texto(s, x + 0.3, 2.9, 3.3, 1.6, fez, tamanho=15)
+    caixa(s, 0.6, 5.1, 12.1, 1.25, "FFF6E0")
+    texto(s, 0.85, 5.22, 11.6, 1.05, [
         [("Em conjunto: ", {"negrito": True}), ("definição do problema, escolha das ERs e revisão dos AFNε.", {})],
         [("Uso de IA: ", {"negrito": True}),
          ("Claude Code (Anthropic) apoiou a estrutura do projeto, o módulo do AFNε, os scripts de documentação e "
